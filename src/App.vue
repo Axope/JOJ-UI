@@ -29,7 +29,7 @@
 
                     <template #dropdown>
                       <el-dropdown-menu>
-                        <el-dropdown-item v-if="admin" @click="problemManage">题目管理</el-dropdown-item>
+                        <el-dropdown-item v-if="admin" @click="createProblem">新建题目</el-dropdown-item>
                         <el-dropdown-item @click="changePassword">修改密码</el-dropdown-item>
                         <el-dropdown-item @click="logout">登出</el-dropdown-item>
                       </el-dropdown-menu>
@@ -48,10 +48,6 @@
       <el-main>
         <router-view></router-view>
       </el-main>
-
-
-      <!-- footer -->
-      <el-footer>Footer</el-footer>
 
     </el-container>
   </div>
@@ -90,8 +86,8 @@ const changePassword = () => {
   router.push('/changePassword');
 };
 
-const problemManage = () => {
-  router.push('/problemManage');
+const createProblem = () => {
+  router.push('/createProblem');
 }
 
 const logout = () => {

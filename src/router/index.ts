@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 
+import Test from '../views/Test.vue';
 // home
 import Home from '../views/home/Home.vue';
 // about
@@ -11,13 +12,18 @@ import ChangePassword from '../views/user/ChangePassword.vue'
 // problem
 import Problems from '../views/problem/Problems.vue';
 import ProblemDetail from '../views/problem/ProblemDetail.vue'
-import ProblemManage from '../views/problem/ProblemManage.vue'
+import CreateProblem from '../views/problem/CreateProblem.vue'
 // submission
 import Submission from '../views/submission/Submission.vue'
 // contest
 import Contest from '../views/contest/Contest.vue';
 
 const routes = [
+  {
+    path: '/test',
+    name: 'Test',
+    component: Test,
+  },
   {
     path: '/',
     name: 'Home',
@@ -60,9 +66,9 @@ const routes = [
     component: ChangePassword,
   },
   {
-    path: '/problemManage',
-    name: 'problemManage',
-    component: ProblemManage,
+    path: '/createProblem',
+    name: 'createProblem',
+    component: CreateProblem,
   },
 ];
 
