@@ -25,9 +25,9 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref } from 'vue';
+import { reactive, ref, inject } from 'vue';
 import { useRoute, useRouter } from 'vue-router'
-import axios from 'axios';
+const axios = inject("axios");
 
 const router = useRouter();
 const route = useRoute()
@@ -89,7 +89,8 @@ const changePassword = () => {
     .then(res => {
       if (res.data.code === 0) {
         console.log(res)
-        router.push('/');
+        ElMessage.success("密码修改成功")
+        router.push('/').catch(() => {});
       } else {
         console.error(res.data.msg);
         showAlert.value = true

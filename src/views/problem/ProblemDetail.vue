@@ -35,13 +35,14 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, inject } from 'vue';
 import { useRoute } from 'vue-router'
-import axios from 'axios';
+const axios = inject("axios");
 import router from '../../router'
 
 const route = useRoute()
 console.log(route)
+console.log("cid", route.query.cid)
 
 interface TestCase {
   input: string;
@@ -66,6 +67,7 @@ interface Problem {
 
 const problem = ref<Problem>();
 const pid = route.params.pid;
+const cid = route.query.cid;
 
 const fetchProblemDetail = () => {
   axios.get(`http://localhost:9876/problem/${pid}`)
@@ -90,10 +92,11 @@ const submitCode = async () => {
   try {
     const submitTime = new Date().toISOString();
     const data = {
-      lang: lang,
       pid: pid,
+      cid: cid,
+      submitTime: submitTime,
+      lang: lang,
       submitCode: code.value,
-      submitTime: submitTime
     };
     console.log("data = ", data)
     // 提交代码

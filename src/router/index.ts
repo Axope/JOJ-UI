@@ -16,7 +16,12 @@ import CreateProblem from '../views/problem/CreateProblem.vue'
 // submission
 import Submission from '../views/submission/Submission.vue'
 // contest
-import Contest from '../views/contest/Contest.vue';
+import Contests from '../views/contest/Contests.vue';
+import ContestDetail from '../views/contest/ContestDetail.vue'
+import CreateContest from '../views/contest/CreateContest.vue'
+import ContestProblems from '../views/contest/ContestProblems.vue'
+import ContestStandings from '../views/contest/ContestStandings.vue'
+import ContestSubmissions from '../views/contest/ContestSubmissions.vue'
 
 const routes = [
   {
@@ -24,35 +29,69 @@ const routes = [
     name: 'Test',
     component: Test,
   },
+
   {
     path: '/',
     name: 'Home',
     component: Home,
   },
+
   {
     path: '/problems',
     name: 'Problems',
     component: Problems,
-  },
-  {
-    path: '/contest',
-    name: 'Contest',
-    component: Contest,
-  },
-  {
-    path: '/about',
-    name: 'About',
-    component: About,
   },
   { 
     path: '/problem/:pid',
     component: ProblemDetail,
   },
   {
+    path: '/createProblem',
+    name: 'createProblem',
+    component: CreateProblem,
+  },
+
+  {
+    path: '/contests',
+    name: 'Contests',
+    component: Contests,
+  },
+  {
+    path: '/createContest',
+    name: 'CreateContest',
+    component: CreateContest,
+  },
+  {
+    path: '/contest/:cid',
+    component: ContestDetail,
+    children: [
+      {
+        path: '',
+        component: ContestProblems,
+      },
+      {
+        path: 'standings',
+        component: ContestStandings,
+      },
+      {
+        path: 'submissions',
+        component: ContestSubmissions,
+      },
+    ],
+  },
+
+  {
+    path: '/about',
+    name: 'About',
+    component: About,
+  },
+  
+  {
     path: '/submission/:pid/:uid',
     name: 'submission',
     component: Submission,
   },
+  
   {
     path: '/login',
     component: Login,
@@ -65,11 +104,7 @@ const routes = [
     path: '/changePassword',
     component: ChangePassword,
   },
-  {
-    path: '/createProblem',
-    name: 'createProblem',
-    component: CreateProblem,
-  },
+  
 ];
 
 const router = createRouter({

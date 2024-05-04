@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <h2>Submissions</h2>
+  <div class="contestSubmissions">
+    <h2>ContestSubmissions Page</h2>
 
     <el-table :data="submissions" stripe style="width: 100%">
       <el-table-column prop="sid" label="SID" />
@@ -34,6 +34,7 @@ import { useRoute } from 'vue-router'
 const axios = inject("axios");
 const route = useRoute()
 console.log(route)
+const cid = route.params.cid;
 
 // 将数字语言转换为字符串
 const langToString = (lang: number): string => {
@@ -50,9 +51,6 @@ const langToString = (lang: number): string => {
       return 'Unknown Language';
   }
 };
-
-const pid = route.params.pid;
-const uid = route.params.uid;
 
 interface Submission {
   sid: string;
@@ -86,14 +84,12 @@ const dialogVisible = ref(false);
 const showSubmitCode = (row) => {
   submitCode.value = row.submitCode;
   dialogVisible.value = true;
-  // console.log(submitCode, dialogVisible)
 }
 
 const fetchSubmissions = () => {
-  axios.get(`http://localhost:9876/submission/getSubmissionList`, {
+  axios.get(`http://localhost:9876/contest/getContestSubmissionList`, {
     params: {
-      pid: pid,
-      uid: uid
+      cid: cid
     }
   })
     .then(res => {
@@ -113,7 +109,7 @@ onMounted(fetchSubmissions);
 </script>
 
 <style scoped>
-.submission {
+.contestSubmissions {
   padding: 20px;
 }
 </style>

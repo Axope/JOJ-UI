@@ -22,8 +22,8 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
-import axios from 'axios';
+import { ref, inject } from 'vue';
+const axios = inject("axios");
 
 interface Problem {
   pid: string;
