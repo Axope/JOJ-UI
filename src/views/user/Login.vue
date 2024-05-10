@@ -1,21 +1,21 @@
 <template>
-  <h2>Login</h2>
+  <h2>登录</h2>
   <el-form ref="ruleFormRef" style="max-width: 400px;margin: 0 auto;" :model="user" :rules="rules" label-width="auto"
     :size="formSize" status-icon>
 
-    <el-form-item label="Username" prop="username">
+    <el-form-item label="用户名" prop="username">
       <el-input v-model="user.username" />
     </el-form-item>
 
-    <el-form-item label="Password" prop="password">
+    <el-form-item label="密码" prop="password">
       <el-input v-model="user.password" />
     </el-form-item>
 
     <el-form-item>
       <el-button type="primary" @click="submitForm(ruleFormRef)">
-        Login
+        登录
       </el-button>
-      <el-button @click="resetForm(ruleFormRef)">Reset</el-button>
+      <el-button @click="resetForm(ruleFormRef)">重置</el-button>
     </el-form-item>
 
     <el-alert v-if="showAlert" :title="registerFailedMessage" type="error" show-icon :closable="false" />

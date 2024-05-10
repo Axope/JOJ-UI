@@ -1,61 +1,59 @@
 <template>
   <div class="contests">
-    <h1>Contest Page</h1>
+    <h1 style="margin-bottom: 80px;">竞赛列表详情页</h1>
 
-    <h2>Register Contests:</h2>
+    <h2>可注册的竞赛</h2>
     <el-table :data="registerContests" stripe style="width: 100%">
-      <el-table-column label="Title">
+      <el-table-column label="名称">
         <template v-slot="{ row }">
           <span>{{ row.title }}</span>
-          <!-- <a href="#">{{ row.title }}</a> -->
-          <!-- <a :href="'/contest/' + row.cid">{{ row.title }}</a> -->
         </template>
       </el-table-column>
-      <el-table-column prop="status" label="Status" />
-      <el-table-column prop="startTime" label="Start Time" />
-      <el-table-column prop="duration" label="Contest Length" :formatter="formatDuration" />
-      <el-table-column prop="note" label="Note" />
-      <el-table-column label="Option" >
+      <el-table-column prop="status" label="状态" />
+      <el-table-column prop="startTime" label="开始时间" />
+      <el-table-column prop="duration" label="竞赛时长" :formatter="formatDuration" />
+      <el-table-column prop="note" label="公告" />
+      <el-table-column label="操作" >
         <template v-slot="{ row }">
-          <a href="#" @click="register(row.cid)" v-if="row.isRegistered == false">Register</a>
-          <a href="#" @click="unregister(row.cid)" v-else>Unregister</a>
+          <el-link href="#" type="primary" @click="register(row.cid)" v-if="row.isRegistered == false">注册</el-link>
+          <el-link href="#" type="primary" @click="unregister(row.cid)" v-else>取消注册</el-link>
         </template>
       </el-table-column>
     </el-table>
 
-    <h2>Running Contests:</h2>
+    <h2>正在举行中的竞赛</h2>
     <el-table :data="runningContests" stripe style="width: 100%">
-      <el-table-column label="Title">
+      <el-table-column label="名称">
         <template v-slot="{ row }">
-          <a :href="'/contest/' + row.cid">{{ row.title }}</a>
+          <el-link :href="'/contest/' + row.cid" type="primary">{{ row.title }}</el-link>
         </template>
       </el-table-column>
-      <el-table-column prop="status" label="Status" />
-      <el-table-column prop="startTime" label="Start Time" />
-      <el-table-column prop="duration" label="Contest Length" :formatter="formatDuration" />
-      <el-table-column prop="note" label="Note" />
-      <el-table-column label="Option" >
+      <el-table-column prop="status" label="状态" />
+      <el-table-column prop="startTime" label="开始时间" />
+      <el-table-column prop="duration" label="竞赛时长" :formatter="formatDuration" />
+      <el-table-column prop="note" label="公告" />
+      <el-table-column label="操作" >
         <template v-slot="{ row }">
-          <a :href="'/contest/' + row.cid">Enter</a>
+          <el-link :href="'/contest/' + row.cid" type="primary">查看</el-link>
           <div v-if="row.isRegistered == false">没有注册，无法提交代码</div>
         </template>
       </el-table-column>
     </el-table>
 
-    <h2>Closed Contests:</h2>
+    <h2>已结束的竞赛</h2>
     <el-table :data="closeContests" stripe style="width: 100%">
-      <el-table-column label="Title">
+      <el-table-column label="名称">
         <template v-slot="{ row }">
-          <a :href="'/contest/' + row.cid">{{ row.title }}</a>
+          <el-link :href="'/contest/' + row.cid" type="primary">{{ row.title }}</el-link>
         </template>
       </el-table-column>
-      <el-table-column prop="status" label="Status" />
-      <el-table-column prop="startTime" label="Start Time" />
-      <el-table-column prop="duration" label="Contest Length" :formatter="formatDuration" />
-      <el-table-column prop="note" label="Note" />
-      <el-table-column label="Option" >
+      <el-table-column prop="status" label="状态" />
+      <el-table-column prop="startTime" label="开始时间" />
+      <el-table-column prop="duration" label="竞赛时长" :formatter="formatDuration" />
+      <el-table-column prop="note" label="公告" />
+      <el-table-column label="操作" >
         <template v-slot="{ row }">
-          <a :href="'/contest/' + row.cid">Enter</a>
+          <el-link :href="'/contest/' + row.cid" type="primary">查看</el-link>
         </template>
       </el-table-column>
     </el-table>
@@ -164,19 +162,23 @@ const unregister = (cid) => {
 };
 
 const loadContests = () => {
-  const formData = new FormData();
-  formData.append('startIndex', 1);
-  formData.append('length', 10);
   const token = localStorage.getItem('token');
 
-  axios.post('http://localhost:9876/contest/getContestList', formData, {
+  axios.get('http://localhost:9876/contest/getContestList', {
+    params: {
+      startIndex: 1,
+      length: 10,
+    },
     headers: {
       'Authorization': token,
-      'Content-Type': 'application/x-www-form-urlencoded',
-    }
+    },
   })
     .then(res => {
       if (res.status === 200) {
+        if (res.data.code === 7) {
+          console.error(res.data.msg);
+          return;
+        }
         contests.value = res.data.data.contests;
         contests.value.forEach((contest) => {
           contest.startTime = convertToUTC8(contest.startTime);

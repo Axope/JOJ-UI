@@ -2,8 +2,8 @@
   <div class="contestDetail" v-if="contest">
 
     <h1>{{ contest.title }}</h1>
-    <p>Start Time: {{ convertToUTC8(contest.startTime) }}</p>
-    <p>Contest Length: {{ contest.duration / 1000 / 1000 / 1000 / 60 + " min" }}</p>
+    <p>开始时间: {{ convertToUTC8(contest.startTime) }}</p>
+    <p>比赛时长: {{ contest.duration / 1000 / 1000 / 1000 / 60 + " min" }}</p>
 
     <div class="button-list">
       <el-button 

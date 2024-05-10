@@ -1,5 +1,5 @@
 <template>
-  <h1>new contest</h1>
+  <h1>新建比赛</h1>
   <el-form ref="ruleFormRef" style="max-width: 600px;margin: 0 auto;" :model="contest" :rules="rules" label-width="auto"
     :size="formSize" status-icon>
 
@@ -58,9 +58,9 @@
 
     <el-form-item>
       <el-button type="primary" @click="submitForm(ruleFormRef)">
-        Create
+        创建
       </el-button>
-      <el-button @click="resetForm(ruleFormRef)">Reset</el-button>
+      <el-button @click="resetForm(ruleFormRef)">重置</el-button>
     </el-form-item>
 
     <el-alert v-if="showAlert" :title="createFailedMessage" type="error" show-icon :closable="false" />

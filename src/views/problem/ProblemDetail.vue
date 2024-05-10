@@ -1,34 +1,79 @@
 <template>
-  <div class="problemDetail" v-if="problem">
+  <div class="problemDetail" v-if="problem" :style="{ borderRadius:`var(--el-border-radius-base)`, boxShadow: `var(--el-box-shadow-light)`}">
     <h1>{{ problem.title }}</h1>
-    <p>Memory Limit: {{ problem.memoryLimit / 1024 / 1024 }} MB&nbsp;&nbsp;&nbsp;&nbsp;
-      Time Limit: {{ problem.timeLimit / 1000 / 1000 }} ms
+    <p>内存限制: {{ problem.memoryLimit / 1024 / 1024 }} MB&nbsp;&nbsp;&nbsp;&nbsp;
+      时间限制: {{ problem.timeLimit / 1000 / 1000 }} ms
     </p>
 
     <div class="problemMain">
 
-      <h2>Description</h2>
-      <p>{{ problem.description }}</p>
+      <h2>题目描述</h2>
+      <MdPreview :editorId="id" :modelValue="problem.description" />
+
+      <h2>输入格式</h2>
+      <MdPreview :editorId="id" :modelValue="problem.inputFormat" />
+      <h2>输出格式</h2>
+      <MdPreview :editorId="id" :modelValue="problem.outputFormat" />
 
       <div v-for="(testSample, index) in problem.testSamples" :key="index">
-        <h2>Test Sample {{ index + 1 }}</h2>
-        <p>Input: {{ testSample.input }}</p>
+        <h2>样例 {{ index + 1 }}</h2>
+        <!-- <p>Input: {{ testSample.input }}</p>
         <p>Output: {{ testSample.output }}</p>
         <p v-if="testSample.note">Note: {{ testSample.note }}</p>
-        <p v-if="testSample.explanation">Explanation: {{ testSample.explanation }}</p>
+        <p v-if="testSample.explanation">Explanation: {{ testSample.explanation }}</p> -->
+        <div class="sample-wrap sample">
+          <div class="input">
+            <strong>输入</strong>
+            <pre ref="inputContent" :style="{ borderRadius:`var(--el-border-radius-base)`}" class="content">{{ testSample.input }}</pre>
+          </div>
+          <div class="output">
+            <strong>输出</strong> 
+            <pre ref="outputContent" :style="{ borderRadius:`var(--el-border-radius-base)`}" class="content">{{ testSample.output }}</pre>
+          </div>
+        </div>
+
       </div>
 
       <div>
-        <textarea v-model="code" rows="10" cols="50"></textarea>
-        <select v-model="lang">
-          <option value="0">Cpp</option>
-          <option value="1">Java</option>
-          <option value="2">Python</option>
-          <option value="3">Go</option>
-        </select>
-        <button @click="submitCode">Submit</button>
-      </div>
+        <!-- 编辑器风格选择 -->
+        <div class="select-container">
+          <span>选择编程语言:</span>
+          <el-select v-model="language" placeholder="Select a language" style="width:90px;">
+            <el-option
+              v-for="lang in languages"
+              :key="lang.value"
+              :label="lang.label"
+              :value="lang.value"
+            />
+          </el-select>
+          &nbsp;&nbsp;&nbsp;&nbsp;
+          <span>IDE风格:</span>
+          <el-select v-model="theme" placeholder="Select a theme" style="width:110px;">
+            <el-option
+              v-for="theme in themes"
+              :key="theme.value"
+              :label="theme.label"
+              :value="theme.value"
+            />
+          </el-select>
+        </div>
 
+        <!-- 编辑器 -->
+        <div class="editor-container">
+          <monacoEditor
+            v-model="code"
+            :language="language"
+            :theme="theme"
+            width="70%"
+            height="350px"
+            @editor-mounted="editorMounted"
+          ></monacoEditor>
+        </div>
+        <el-button type="primary" @click="submitCode">
+          Submit
+        </el-button>
+        <el-button @click="resetCode">Reset</el-button>
+      </div>
     </div>
 
   </div>
@@ -39,6 +84,31 @@ import { ref, onMounted, inject } from 'vue';
 import { useRoute } from 'vue-router'
 const axios = inject("axios");
 import router from '../../router'
+
+import { MdPreview, MdCatalog } from 'md-editor-v3';
+import 'md-editor-v3/lib/preview.css';
+const id = 'preview-only';
+
+import * as monaco from 'monaco-editor'
+import monacoEditor from './monacoEditor.vue'
+const code = ref('')
+const editorMounted = (editor: monaco.editor.IStandaloneCodeEditor) => {
+  console.log('editor实例加载完成', editor)
+}
+
+const theme = ref('vs')
+const themes = [
+  { label: 'VS', value: 'vs' },
+  { label: 'VS Dark', value: 'vs-dark' },
+  { label: 'HC Black', value: 'hc-black' }
+]
+const language = ref('cpp')
+const languages = [
+  { label: 'Cpp', value: 'cpp' },
+  { label: 'Python', value: 'python' },
+  { label: 'Java', value: 'java' },
+  { label: 'Go', value: 'go' },
+]
 
 const route = useRoute()
 console.log(route)
@@ -57,6 +127,8 @@ interface Problem {
   memoryLimit: number;
   description: string;
   testSamples: TestCase[];
+  inputFormat: string;
+  outputFormat: string;
 
   // options
   dataRange?: string;
@@ -86,7 +158,7 @@ const fetchProblemDetail = () => {
 onMounted(fetchProblemDetail);
 
 // Code Submit
-const code = ref('');
+// const code = ref('');
 let lang: number = 0;
 const submitCode = async () => {
   try {
@@ -116,15 +188,77 @@ const submitCode = async () => {
     console.error('Error submitting code:', error);
   }
 };
+const resetCode = () => {
+  code.value = '';
+}
 </script>
 
 <style scoped>
 .problemDetail {
   padding: 20px;
+  width: 80%;
+  margin: auto;
 }
 
 .problemMain {
   text-align: left;
   margin-left: 10%;
+}
+
+.select-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.select-container span {
+  margin-right: 10px;
+}
+
+.small-select .el-select__input {
+  width: 20px; /* 设置宽度为 120px，可以根据需要调整 */
+}
+
+.editor-container {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.sample-wrap {
+    overflow: hidden;
+    display: flex;
+}
+
+.sample {
+    margin-top: 1.5em;
+    width: 70%;
+}
+
+.copy-btn {
+    font-size: .8em;
+    float: right;
+    padding: 0 5px;
+}
+
+.lfe-form-sz-middle {
+    font-size: 0.875em;
+    padding: 0.313em 1em;
+}
+
+.input {
+    margin-right: .5em;
+    flex: 1;
+    overflow: hidden;
+}
+
+.output {
+    margin-left: .5em;
+    flex: 1;
+    overflow: hidden;
+}
+
+.content {
+  background: #F8F8F8;
+  padding: 7px;
 }
 </style>

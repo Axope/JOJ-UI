@@ -1,36 +1,52 @@
 <template>
-  <h1>new problem</h1>
+  <h1>新建题目</h1>
   <el-form ref="ruleFormRef" style="max-width: 600px;margin: 0 auto;" :model="problem" :rules="rules" label-width="auto"
     :size="formSize" status-icon>
 
-    <el-form-item label="Descript" prop="descript">
-      <el-input v-model="problem.descript" />
-    </el-form-item>
-    <el-form-item label="Title" prop="title">
+    <el-form-item label="标题" prop="title">
       <el-input v-model="problem.title" />
     </el-form-item>
-    <el-form-item label="Memory Limit" prop="memoryLimit">
-      <el-input v-model="problem.memoryLimit" />
+    <el-form-item label="题目描述" prop="description">
+      <el-input v-model="problem.description" type="textarea" :rows="10" placeholder="支持MarkDown语法" />
     </el-form-item>
-    <el-form-item label="Time Limit" prop="timeLimit">
-      <el-input v-model="problem.timeLimit" />
+    <el-form-item label="内存限制" prop="memoryLimit">
+      <el-input-number v-model="problem.memoryLimit"></el-input-number>&nbsp;MB
+    </el-form-item>
+    <el-form-item label="时间限制" prop="timeLimit">
+      <el-input-number v-model="problem.timeLimit"></el-input-number>&nbsp;ms
+    </el-form-item>
+
+    <el-form-item label="算法标签" prop="tags"> 
+      <el-checkbox-group v-model="problem.tags" size="large"  class="left-align">
+        <el-checkbox class="el-checkbox-width" v-for="tag in tagsList"
+          :key="tag" :value="tag">
+          {{ tag }}
+        </el-checkbox>
+      </el-checkbox-group>
+    </el-form-item>
+
+    <el-form-item label="输入格式" prop="inputFormat">
+      <el-input v-model="problem.inputFormat" type="textarea" :rows="6" placeholder="支持MarkDown语法" />
+    </el-form-item>
+    <el-form-item label="输出格式" prop="outputFormat">
+      <el-input v-model="problem.outputFormat" type="textarea" :rows="6" placeholder="支持MarkDown语法" />
     </el-form-item>
 
     <div v-for="(testCase, index) in problem.testSamples" :key="index">
       <el-form label-position="top" inline>
-        <el-form-item :label="'Test Case ' + (index + 1)" :prop="'testSamples.' + index">
-          <el-form-item label="Input">
+        <el-form-item :label="'测试样例 ' + (index + 1)" :prop="'testSamples.' + index">
+          <el-form-item label="输入">
             <el-input v-model="testCase.input" type="textarea" :rows="5" placeholder="Input" />
           </el-form-item>
-          <el-form-item label="Output">
+          <el-form-item label="输出">
             <el-input v-model="testCase.output" type="textarea" :rows="5" placeholder="Output" />
           </el-form-item>
 
-          <el-form-item label="Note" prop="note">
-            <el-input v-model="testCase.note" placeholder="Note" />
+          <el-form-item label="测试说明" prop="note">
+            <el-input v-model="testCase.note" type="textarea" :rows="2" placeholder="Output" />
           </el-form-item>
-          <el-form-item label="Explanation" prop="explanation">
-            <el-input v-model="testCase.explanation" placeholder="Explanation" />
+          <el-form-item label="样例解释" prop="explanation">
+            <el-input v-model="testCase.explanation" type="textarea" :rows="2" placeholder="Output" />
           </el-form-item>
         </el-form-item>
         <el-button type="danger" @click="removeTestCase(index)">删除</el-button>
@@ -44,7 +60,7 @@
       <el-upload ref="uploadRef" :auto-upload="false" :file-list="fileList" :on-change="onChange"
         :accept="'application/zip'">
         <template #trigger>
-          <el-button type="primary">select file</el-button>
+          <el-button type="primary">选择测试数据文件</el-button>
         </template>
 
         <template #tip>
@@ -57,9 +73,9 @@
 
     <el-form-item>
       <el-button type="primary" @click="submitForm(ruleFormRef)">
-        Create
+        创建
       </el-button>
-      <el-button @click="resetForm(ruleFormRef)">Reset</el-button>
+      <el-button @click="resetForm(ruleFormRef)">重置</el-button>
     </el-form-item>
 
     <el-alert v-if="showAlert" :title="createFailedMessage" type="error" show-icon :closable="false" />
@@ -83,24 +99,27 @@ interface TestCase {
   explanation?: string;
 }
 interface Problem {
-  descript: string;
+  description: string;
   title: string;
   timeLimit: number;
   memoryLimit: number;
+  tags: string[];
   testSamples: TestCase[];
+  inputFormat: string;
+  outputFormat: string;
 }
 const formSize = ref<ComponentSize>('default')
 const ruleFormRef = ref<FormInstance>()
 const problem = reactive<Problem>({
-  descript: '',
+  description: '',
   title: '',
   timeLimit: 0,
   memoryLimit: 0,
   testSamples: [{ input: '', output: '', note: '', explanation: '' }],
 })
 const rules = reactive<FormRules<problem>>({
-  descript: [
-    { required: true, message: 'Please input descript', trigger: 'blur' },
+  description: [
+    { required: true, message: 'Please input description', trigger: 'blur' },
   ],
   title: [
     { required: true, message: 'Please input title', trigger: 'blur' },
@@ -119,6 +138,8 @@ const addTestCase = () => {
 const removeTestCase = (index: number) => {
   problem.testSamples.splice(index, 1);
 };
+
+const tagsList = ref([])
 
 // / / / // / // / / // / // / // /
 const uploadRef = ref<Nullable<ElUpload>>(null);
@@ -158,11 +179,15 @@ const createFailedMessage = ref('创建题目失败');
 
 const createProblem = () => {
   const formData = new FormData();
-  formData.append('descript', problem.descript);
+  formData.append('description', problem.description);
   formData.append('title', problem.title);
-  formData.append('timeLimit', problem.timeLimit);
-  formData.append('memoryLimit', problem.memoryLimit);
+  formData.append('timeLimit', problem.timeLimit * 1000 * 1000);
+  formData.append('memoryLimit', problem.memoryLimit * 1024 * 1024);
   formData.append('testSamplesJson', JSON.stringify(problem.testSamples));
+  formData.append('tagsJson', JSON.stringify(problem.tags));
+  formData.append('inputFormat', problem.inputFormat);
+  formData.append('outputFormat', problem.outputFormat);
+
   const file = fileList.value[0];
   if (!file) {
     console.error('No file selected');
@@ -194,6 +219,21 @@ const createProblem = () => {
       console.error("请求失败:", error);
     });
 };
+
+const loadTagsList = () => {
+  axios.get('http://localhost:9876/problem/getTags')
+    .then(res => {
+      if (res.status === 200) {
+        tagsList.value = res.data.data.tags;
+      } else {
+        console.error(res.data.msg);
+      }
+    })
+    .catch(error => {
+      console.error("请求失败:", error);
+    });
+};
+loadTagsList();
 </script>
 
 <style scoped>
@@ -207,4 +247,15 @@ const createProblem = () => {
   align-items: center;
   height: 100vh;
 }
+
+.el-checkbox-width{
+  width: 100px;
+  height: 25px;
+}
+
+.left-align {
+  display: flex;
+  flex-wrap: wrap;
+}
+
 </style>

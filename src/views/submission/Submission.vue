@@ -3,19 +3,19 @@
     <h2>Submissions</h2>
 
     <el-table :data="submissions" stripe style="width: 100%">
-      <el-table-column prop="sid" label="SID" />
+      <!-- <el-table-column prop="sid" label="SID" /> -->
       <el-table-column prop="uid" label="UID" />
-      <el-table-column prop="pid" label="PID" />
-      <el-table-column prop="submitTime" label="submit time" />
-      <el-table-column prop="lang" label="lang" >
+      <!-- <el-table-column prop="pid" label="PID" /> -->
+      <el-table-column prop="submitTime" label="提交时间" />
+      <el-table-column prop="lang" label="编程语言" >
         <template #default="{ row }">
           {{langToString(row.lang)}}
         </template>
       </el-table-column>
-      <el-table-column prop="status" label="status" />
-      <el-table-column prop="runningTime" label="running time" />
-      <el-table-column prop="runningMemory" label="running memory" />
-      <el-table-column label="submit code">
+      <el-table-column prop="status" label="评测状态" />
+      <!-- <el-table-column prop="runningTime" label="running time" />
+      <el-table-column prop="runningMemory" label="running memory" /> -->
+      <el-table-column label="代码详情">
         <template #default="{ row }">
           <el-button @click="showSubmitCode(row)">详情</el-button>
         </template>
@@ -89,6 +89,21 @@ const showSubmitCode = (row) => {
   // console.log(submitCode, dialogVisible)
 }
 
+const convertToUTC8 = (isoString: string): Date => {
+  const date = new Date(isoString);
+  const options: Intl.DateTimeFormatOptions = {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false, 
+    timeZone: 'Asia/Shanghai' 
+  };
+  return date.toLocaleString('zh-CN', options);
+};
+
 const fetchSubmissions = () => {
   axios.get(`http://localhost:9876/submission/getSubmissionList`, {
     params: {
@@ -98,8 +113,14 @@ const fetchSubmissions = () => {
   })
     .then(res => {
       if (res.status === 200) {
-        console.log(res)
+        if (res.data.code === 7) {
+          console.error(res.data.msg);
+          return;
+        }
         submissions.value = res.data.data.submissions;
+        submissions.value.forEach((submission) => {
+          submission.submitTime = convertToUTC8(submission.submitTime);
+        });
       } else {
         console.error(res.data.msg);
       }

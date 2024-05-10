@@ -3,25 +3,25 @@
     <el-table :data="standings" stripe style="width: 100%" v-if="standings.length > 0">
       <!-- <el-table-column prop="uid" label="UID" width="180"> -->
       <!-- </el-table-column> -->
-      <el-table-column label="Rank">
+      <el-table-column label="排名">
         <template v-slot="{ row }">
           <div>{{ calculateRank(row) }}</div>
         </template>
       </el-table-column>
 
-      <el-table-column label="Username">
+      <el-table-column label="用户名">
         <template v-slot="{ row }">
           <div>{{ getUsername(row) }}</div>
         </template>
       </el-table-column>
 
-      <el-table-column label="AcceptCnt">
+      <el-table-column label="通过数量">
         <template v-slot="{ row }">
           <div>{{ getAcceptCount(row) }}</div>
         </template>
       </el-table-column>
 
-      <el-table-column v-if="rule === 'ACM'" label="Penalty">
+      <el-table-column v-if="rule === 'ACM'" label="罚时">
         <template v-slot="{ row }">
           <div>{{ calculatePenalty(row) }}</div>
         </template>
