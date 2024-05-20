@@ -1,5 +1,6 @@
 <template>
-  <div class="problemDetail" v-if="problem" :style="{ borderRadius:`var(--el-border-radius-base)`, boxShadow: `var(--el-box-shadow-light)`}">
+  <div class="problemDetail" v-if="problem"
+    :style="{ borderRadius: `var(--el-border-radius-base)`, boxShadow: `var(--el-box-shadow-light)` }">
     <h1>{{ problem.title }}</h1>
     <p>内存限制: {{ problem.memoryLimit / 1024 / 1024 }} MB&nbsp;&nbsp;&nbsp;&nbsp;
       时间限制: {{ problem.timeLimit / 1000 / 1000 }} ms
@@ -24,11 +25,13 @@
         <div class="sample-wrap sample">
           <div class="input">
             <strong>输入</strong>
-            <pre ref="inputContent" :style="{ borderRadius:`var(--el-border-radius-base)`}" class="content">{{ testSample.input }}</pre>
+            <pre ref="inputContent" :style="{ borderRadius: `var(--el-border-radius-base)` }"
+              class="content">{{ testSample.input }}</pre>
           </div>
           <div class="output">
-            <strong>输出</strong> 
-            <pre ref="outputContent" :style="{ borderRadius:`var(--el-border-radius-base)`}" class="content">{{ testSample.output }}</pre>
+            <strong>输出</strong>
+            <pre ref="outputContent" :style="{ borderRadius: `var(--el-border-radius-base)` }"
+              class="content">{{ testSample.output }}</pre>
           </div>
         </div>
 
@@ -38,36 +41,21 @@
         <!-- 编辑器风格选择 -->
         <div class="select-container">
           <span>选择编程语言:</span>
-          <el-select v-model="language" placeholder="Select a language" style="width:90px;">
-            <el-option
-              v-for="lang in languages"
-              :key="lang.value"
-              :label="lang.label"
-              :value="lang.value"
-            />
+          <el-select v-model="selectedLanguage" placeholder="Select a language" @change="handleChange"
+            style="width:90px;">
+            <el-option v-for="item in languages" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
           &nbsp;&nbsp;&nbsp;&nbsp;
           <span>IDE风格:</span>
           <el-select v-model="theme" placeholder="Select a theme" style="width:110px;">
-            <el-option
-              v-for="theme in themes"
-              :key="theme.value"
-              :label="theme.label"
-              :value="theme.value"
-            />
+            <el-option v-for="theme in themes" :key="theme.value" :label="theme.label" :value="theme.value" />
           </el-select>
         </div>
 
         <!-- 编辑器 -->
         <div class="editor-container">
-          <monacoEditor
-            v-model="code"
-            :language="language"
-            :theme="theme"
-            width="70%"
-            height="350px"
-            @editor-mounted="editorMounted"
-          ></monacoEditor>
+          <monacoEditor v-model="code" :language="selectedLanguage" :theme="theme" width="70%" height="350px"
+            @editor-mounted="editorMounted"></monacoEditor>
         </div>
         <el-button type="primary" @click="submitCode">
           Submit
@@ -102,13 +90,39 @@ const themes = [
   { label: 'VS Dark', value: 'vs-dark' },
   { label: 'HC Black', value: 'hc-black' }
 ]
-const language = ref('cpp')
-const languages = [
-  { label: 'Cpp', value: 'cpp' },
-  { label: 'Python', value: 'python' },
-  { label: 'Java', value: 'java' },
-  { label: 'Go', value: 'go' },
-]
+
+const selectedLanguage = ref('cpp');
+const selectedValue = ref('0')
+const languages = ref([
+  { value: 'cpp', label: 'Cpp' },
+  { value: 'java', label: 'Java' },
+  { value: 'python', label: 'Python' },
+  { value: 'go', label: 'Go' }
+]);
+const handleChange = (value) => {
+  selectedLanguage.value = value;
+  if (value === 'cpp') {
+    selectedValue.value = 0;
+  } else if (value === 'java') {
+    selectedValue.value = 1;
+  } else if (value === 'python') {
+    selectedValue.value = 2;
+  } else {
+    selectedValue.value = 3;
+  }
+  console.log('Selected Value:', value);
+};
+const getLang = (value) => {
+  if (value === 0) {
+    return 'cpp';
+  } else if (value === 1) {
+    return 'java';
+  } else if (value === 2) {
+    return 'python'
+  } else {
+    return 'go';
+  }
+}
 
 const route = useRoute()
 console.log(route)
@@ -159,7 +173,6 @@ onMounted(fetchProblemDetail);
 
 // Code Submit
 // const code = ref('');
-let lang: number = 0;
 const submitCode = async () => {
   try {
     const submitTime = new Date().toISOString();
@@ -167,7 +180,7 @@ const submitCode = async () => {
       pid: pid,
       cid: cid,
       submitTime: submitTime,
-      lang: lang,
+      lang: selectedValue.value,
       submitCode: code.value,
     };
     console.log("data = ", data)
@@ -216,7 +229,8 @@ const resetCode = () => {
 }
 
 .small-select .el-select__input {
-  width: 20px; /* 设置宽度为 120px，可以根据需要调整 */
+  width: 20px;
+  /* 设置宽度为 120px，可以根据需要调整 */
 }
 
 .editor-container {
@@ -225,36 +239,36 @@ const resetCode = () => {
 }
 
 .sample-wrap {
-    overflow: hidden;
-    display: flex;
+  overflow: hidden;
+  display: flex;
 }
 
 .sample {
-    margin-top: 1.5em;
-    width: 70%;
+  margin-top: 1.5em;
+  width: 70%;
 }
 
 .copy-btn {
-    font-size: .8em;
-    float: right;
-    padding: 0 5px;
+  font-size: .8em;
+  float: right;
+  padding: 0 5px;
 }
 
 .lfe-form-sz-middle {
-    font-size: 0.875em;
-    padding: 0.313em 1em;
+  font-size: 0.875em;
+  padding: 0.313em 1em;
 }
 
 .input {
-    margin-right: .5em;
-    flex: 1;
-    overflow: hidden;
+  margin-right: .5em;
+  flex: 1;
+  overflow: hidden;
 }
 
 .output {
-    margin-left: .5em;
-    flex: 1;
-    overflow: hidden;
+  margin-left: .5em;
+  flex: 1;
+  overflow: hidden;
 }
 
 .content {

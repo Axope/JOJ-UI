@@ -1,7 +1,5 @@
 <template>
   <div class="contests">
-    <h1 style="margin-bottom: 80px;">竞赛列表详情页</h1>
-
     <h2>可注册的竞赛</h2>
     <el-table :data="registerContests" stripe style="width: 100%">
       <el-table-column label="名称">
@@ -13,7 +11,7 @@
       <el-table-column prop="startTime" label="开始时间" />
       <el-table-column prop="duration" label="竞赛时长" :formatter="formatDuration" />
       <el-table-column prop="note" label="公告" />
-      <el-table-column label="操作" >
+      <el-table-column label="操作">
         <template v-slot="{ row }">
           <el-link href="#" type="primary" @click="register(row.cid)" v-if="row.isRegistered == false">注册</el-link>
           <el-link href="#" type="primary" @click="unregister(row.cid)" v-else>取消注册</el-link>
@@ -21,7 +19,7 @@
       </el-table-column>
     </el-table>
 
-    <h2>正在举行中的竞赛</h2>
+    <h2>正在进行的竞赛</h2>
     <el-table :data="runningContests" stripe style="width: 100%">
       <el-table-column label="名称">
         <template v-slot="{ row }">
@@ -32,7 +30,7 @@
       <el-table-column prop="startTime" label="开始时间" />
       <el-table-column prop="duration" label="竞赛时长" :formatter="formatDuration" />
       <el-table-column prop="note" label="公告" />
-      <el-table-column label="操作" >
+      <el-table-column label="操作">
         <template v-slot="{ row }">
           <el-link :href="'/contest/' + row.cid" type="primary">查看</el-link>
           <div v-if="row.isRegistered == false">没有注册，无法提交代码</div>
@@ -51,13 +49,13 @@
       <el-table-column prop="startTime" label="开始时间" />
       <el-table-column prop="duration" label="竞赛时长" :formatter="formatDuration" />
       <el-table-column prop="note" label="公告" />
-      <el-table-column label="操作" >
+      <el-table-column label="操作">
         <template v-slot="{ row }">
           <el-link :href="'/contest/' + row.cid" type="primary">查看</el-link>
         </template>
       </el-table-column>
     </el-table>
-    
+
   </div>
 </template>
 
@@ -89,8 +87,8 @@ const convertToUTC8 = (isoString: string): Date => {
     hour: '2-digit',
     minute: '2-digit',
     second: '2-digit',
-    hour12: false, 
-    timeZone: 'Asia/Shanghai' 
+    hour12: false,
+    timeZone: 'Asia/Shanghai'
   };
   return date.toLocaleString('zh-CN', options);
 };

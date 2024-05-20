@@ -1,18 +1,38 @@
 <template>
   <div>
-    <h2>Submissions</h2>
+    <h2>我的提交</h2>
 
     <el-table :data="submissions" stripe style="width: 100%">
       <!-- <el-table-column prop="sid" label="SID" /> -->
-      <el-table-column prop="uid" label="UID" />
+      <el-table-column label="用户名">{{ username }}</el-table-column>
       <!-- <el-table-column prop="pid" label="PID" /> -->
       <el-table-column prop="submitTime" label="提交时间" />
-      <el-table-column prop="lang" label="编程语言" >
+      <el-table-column prop="lang" label="编程语言">
         <template #default="{ row }">
-          {{langToString(row.lang)}}
+          {{ langToString(row.lang) }}
         </template>
       </el-table-column>
       <el-table-column prop="status" label="评测状态" />
+      <el-table-column prop="executeTime" label="运行时间">
+        <template v-slot="{ row }">
+          <div v-if="row.executeTime">
+            {{ Math.ceil(row.executeTime / 1000 / 1000) }} ms
+          </div>
+          <div v-else>
+            &nbsp;&nbsp;&nbsp;--
+          </div>
+        </template>
+      </el-table-column>
+      <el-table-column prop="executeMemory" label="运行内存">
+        <template v-slot="{ row }">
+          <div v-if="row.executeTime">
+            {{ Math.ceil(row.executeMemory / 1024) }} KB
+          </div>
+          <div v-else>
+            &nbsp;&nbsp;&nbsp;--
+          </div>
+        </template>
+      </el-table-column>
       <!-- <el-table-column prop="runningTime" label="running time" />
       <el-table-column prop="runningMemory" label="running memory" /> -->
       <el-table-column label="代码详情">
@@ -22,8 +42,8 @@
       </el-table-column>
     </el-table>
 
-    <el-dialog v-model="dialogVisible" title="Submit Code" width="50%">
-      <div>{{ submitCode }}</div>
+    <el-dialog v-model="dialogVisible" title="代码详情" width="50%">
+      <MdPreview class="left-align" :editorId="id" :modelValue="submitCode" />
     </el-dialog>
   </div>
 </template>
@@ -64,6 +84,8 @@ interface Submission {
   runningTime: number;
   runningMemory: number;
   submitCode: string;
+  executeTime: number;
+  executeMemory: number;
   point?: number; // 可选字段
 }
 type StatusSet =
@@ -81,13 +103,18 @@ type StatusSet =
 
 const submissions = ref<Submission[]>();
 
+const username = localStorage.getItem('username')
 const submitCode = ref("");
 const dialogVisible = ref(false);
 const showSubmitCode = (row) => {
-  submitCode.value = row.submitCode;
+  submitCode.value = '```' + langToString(row.lang) + '\n' + row.submitCode;
   dialogVisible.value = true;
   // console.log(submitCode, dialogVisible)
 }
+
+import { MdPreview, MdCatalog } from 'md-editor-v3';
+import 'md-editor-v3/lib/preview.css';
+const id = 'preview-only';
 
 const convertToUTC8 = (isoString: string): Date => {
   const date = new Date(isoString);
@@ -98,8 +125,8 @@ const convertToUTC8 = (isoString: string): Date => {
     hour: '2-digit',
     minute: '2-digit',
     second: '2-digit',
-    hour12: false, 
-    timeZone: 'Asia/Shanghai' 
+    hour12: false,
+    timeZone: 'Asia/Shanghai'
   };
   return date.toLocaleString('zh-CN', options);
 };
@@ -118,6 +145,7 @@ const fetchSubmissions = () => {
           return;
         }
         submissions.value = res.data.data.submissions;
+        submissions.value = [...submissions.value].reverse();
         submissions.value.forEach((submission) => {
           submission.submitTime = convertToUTC8(submission.submitTime);
         });
@@ -136,5 +164,9 @@ onMounted(fetchSubmissions);
 <style scoped>
 .submission {
   padding: 20px;
+}
+
+.left-align {
+  text-align: left;
 }
 </style>
