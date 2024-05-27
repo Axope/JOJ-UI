@@ -92,7 +92,7 @@ const themes = [
 ]
 
 const selectedLanguage = ref('cpp');
-const selectedValue = ref('0')
+const selectedValue = ref(0)
 const languages = ref([
   { value: 'cpp', label: 'Cpp' },
   { value: 'java', label: 'Java' },

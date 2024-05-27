@@ -8,7 +8,7 @@
     </el-form-item>
 
     <el-form-item label="密码" prop="password">
-      <el-input v-model="user.password" />
+      <el-input v-model="user.password" type="password" show-password/>
     </el-form-item>
 
     <el-form-item>
